@@ -316,8 +316,8 @@ async def get_sensors(
     return sensors_with_data
 
 
-@router.post("", response_model=SensorRead)
-async def create_sensor_from_gpx(
+@router.post("/many", response_model=SensorRead)
+async def create_many_sensors_from_gpx(
     sensor: SensorCreateFromGPX = Body(...),
     session: AsyncSession = Depends(get_session),
 ) -> None:
