@@ -8,8 +8,8 @@ from app.config import config as app_config
 from alembic import context
 from sqlmodel import SQLModel
 from geoalchemy2 import alembic_helpers
-from app.areas.models import Area
-from app.sensors.models import Sensor
+from app.sites.models import Site
+from app.field_campaigns.models import FieldCampaign
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

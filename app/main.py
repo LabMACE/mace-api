@@ -1,8 +1,8 @@
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import config
-from app.areas.views import router as areas_router
-from app.sensors.views import router as sensors_router
+from app.sites.views import router as sites_router
+from app.fieldcampaigns.views import router as field_campaigns_router
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -41,12 +41,12 @@ def get_health() -> HealthCheck:
 
 
 app.include_router(
-    areas_router,
-    prefix=f"{config.API_V1_PREFIX}/areas",
-    tags=["areas"],
+    sites_router,
+    prefix=f"{config.API_V1_PREFIX}/sites",
+    tags=["sites"],
 )
 app.include_router(
-    sensors_router,
-    prefix=f"{config.API_V1_PREFIX}/sensors",
-    tags=["sensors"],
+    field_campaigns_router,
+    prefix=f"{config.API_V1_PREFIX}/fieldcampaigns",
+    tags=["fieldcampaigns"],
 )
