@@ -36,24 +36,26 @@ async def get_sites(
     range = json.loads(range) if range else []
     filter = json.loads(filter) if filter else {}
 
-    query = select(Site)
-
     # Do a query to satisfy total count for "Content-Range" header
     count_query = select(func.count(Site.iterator))
     if len(filter):  # Have to filter twice for some reason? SQLModel state?
         for field, value in filter.items():
-            for qry in [query, count_query]:  # Apply filter to both queries
-                if isinstance(value, list):
-                    qry = qry.where(getattr(Site, field).in_(value))
-                elif field == "id" or field == "field_campaign_id":
-                    qry = qry.where(getattr(Site, field) == value)
-                else:
-                    qry = qry.where(getattr(Site, field).like(f"%{value}%"))
+            if isinstance(value, list):
+                count_query = count_query.where(
+                    getattr(Site, field).in_(value)
+                )
+            elif field == "id" or field == "field_campaign_id":
+                count_query = count_query.where(getattr(Site, field) == value)
+            else:
+                count_query = count_query.where(
+                    getattr(Site, field).like(f"%{value}%")
+                )
 
     # Execute total count query (including filter)
     total_count_query = await session.execute(count_query)
     total_count = total_count_query.scalar_one()
 
+    query = select(Site)
     # Order by sort field params ie. ["name","ASC"]
     if len(sort) == 2:
         sort_field, sort_order = sort

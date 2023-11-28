@@ -3,7 +3,7 @@ from uuid import uuid4, UUID
 from typing import Any
 from typing import TYPE_CHECKING
 import datetime
-from app.sites.models import Site
+from app.sites.models import SiteRead, Site
 
 
 class FieldCampaignBase(SQLModel):
@@ -25,7 +25,7 @@ class FieldCampaign(FieldCampaignBase, table=True):
         nullable=False,
     )
     created_at: datetime.datetime = Field(
-        default=datetime.datetime.utcnow,
+        default_factory=datetime.datetime.utcnow,
         nullable=False,
         index=True,
     )
@@ -38,7 +38,7 @@ class FieldCampaign(FieldCampaignBase, table=True):
 
 class FieldCampaignRead(FieldCampaignBase):
     id: UUID
-    sites: list["Site"] = []
+    sites: list["SiteRead"] = []
 
 
 class FieldCampaignCreate(FieldCampaignBase):

@@ -96,7 +96,6 @@ async def get_field_campaigns(
     response.headers[
         "Content-Range"
     ] = f"field_campaigns {start}-{end}/{total_count}"
-
     return field_campaigns
 
 

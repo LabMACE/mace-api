@@ -2,6 +2,7 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import config
 from app.sites.views import router as sites_router
+from app.subsites.views import router as subsites_router
 from app.fieldcampaigns.views import router as field_campaigns_router
 from pydantic import BaseModel
 
@@ -45,6 +46,12 @@ app.include_router(
     prefix=f"{config.API_V1_PREFIX}/sites",
     tags=["sites"],
 )
+app.include_router(
+    subsites_router,
+    prefix=f"{config.API_V1_PREFIX}/subsites",
+    tags=["subsites"],
+)
+
 app.include_router(
     field_campaigns_router,
     prefix=f"{config.API_V1_PREFIX}/fieldcampaigns",
