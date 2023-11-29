@@ -1,6 +1,7 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import config
+from app.db import get_session, AsyncSession
 from app.sites.views import router as sites_router
 from app.subsites.views import router as subsites_router
 from app.fieldcampaigns.views import router as field_campaigns_router
@@ -33,11 +34,19 @@ class HealthCheck(BaseModel):
     status_code=status.HTTP_200_OK,
     response_model=HealthCheck,
 )
-def get_health() -> HealthCheck:
+async def get_health(
+    session: AsyncSession = Depends(get_session),
+) -> HealthCheck:
     """
     Endpoint to perform a healthcheck on for kubenernetes liveness and
     readiness probes.
     """
+    # Check DB connection
+    try:
+        await session.execute("SELECT 1")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB Error: {e}")
+
     return HealthCheck(status="OK")
 
 
