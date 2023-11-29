@@ -2,9 +2,12 @@ from sqlmodel import create_engine
 from sqlmodel.ext.asyncio.session import AsyncSession, AsyncEngine
 from sqlalchemy.orm import sessionmaker
 from app.config import config
+import sys
 
 
-engine = AsyncEngine(create_engine(config.DB_URL, echo=True, future=True))
+# Don't load engine if pytest is running
+if "pytest" not in sys.modules:
+    engine = AsyncEngine(create_engine(config.DB_URL, echo=True, future=True))
 
 
 async def get_session() -> AsyncSession:

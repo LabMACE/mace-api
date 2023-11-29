@@ -131,15 +131,8 @@ async def update_subsite(
     # Update the fields from the request
     for field, value in subsite_data.items():
         print(f"Updating: {field}, {value}")
-        # if field == "temperatures":
-        #     pass
-        #     print("MADE IT")
-        # if field == "luminosities":
-        #     pass
-        # else:
         setattr(subsite_db, field, value)
 
-    print("MADE IT 2")
     session.add(subsite_db)
 
     await session.commit()
