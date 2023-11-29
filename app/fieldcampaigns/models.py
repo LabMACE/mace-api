@@ -30,7 +30,7 @@ class FieldCampaign(FieldCampaignBase, table=True):
         index=True,
     )
 
-    sites: list["Site"] = Relationship(
+    sites: list[Site] = Relationship(
         back_populates="field_campaign",
         sa_relationship_kwargs={"lazy": "selectin"},
     )
@@ -38,7 +38,7 @@ class FieldCampaign(FieldCampaignBase, table=True):
 
 class FieldCampaignRead(FieldCampaignBase):
     id: UUID
-    sites: list["SiteRead"] = []
+    # sites: list[Any] = []
 
 
 class FieldCampaignCreate(FieldCampaignBase):

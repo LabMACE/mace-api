@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 class SiteBase(SQLModel):
     name: str = Field(default=None, index=True)
-    description: str
+    description: str | None = Field(default=None, nullable=True, index=True)
     field_campaign_id: UUID = Field(
         default=None, foreign_key="fieldcampaign.id", index=True
     )
@@ -41,7 +41,7 @@ class Site(SiteBase, table=True):
         nullable=False,
         index=True,
     )
-    geom: Any = Field(sa_column=Column(Geometry("POINTZ", srid=4326)))
+    geom: Any | None = Field(sa_column=Column(Geometry("POINTZ", srid=4326)))
 
     field_campaign: "FieldCampaign" = Relationship(
         back_populates="sites", sa_relationship_kwargs={"lazy": "selectin"}
@@ -56,11 +56,11 @@ class SiteRead(SiteBase):
     id: UUID  # We use the UUID as the return ID
     geom: Any
     created_at: datetime.datetime
-    latitude: float | None
-    longitude: float | None
-    elevation: float | None
+    latitude: float | None = 0
+    longitude: float | None = 0
+    elevation: float | None = 0
 
-    # field_campaign: Any
+    field_campaign: Any
 
     @root_validator
     def convert_wkb_to_lat_lon(cls, values: dict) -> dict:
@@ -86,20 +86,26 @@ class SiteRead(SiteBase):
 
 
 class SiteCreate(SiteBase):
-    latitude: float
-    longitude: float
-    elevation: float
-    geom: Any | None = None
+    latitude: float | None
+    longitude: float | None
+    elevation: float | None
+    geom: Any | None
 
     @root_validator(pre=True)
     def convert_lat_lon_to_wkt(cls, values: dict) -> dict:
         """Form the geometry from the latitude and longitude and elevation"""
 
-        if "latitude" in values and "longitude" in values:
+        # Only save geometry if we have both latitude and longitude
+        if ("latitude" in values and "longitude" in values) and (
+            values["latitude"] is not None and values["longitude"] is not None
+        ):
             values["geom"] = "POINT({lat} {lon} {elevation})".format(
                 lat=values["latitude"],
                 lon=values["longitude"],
-                elevation=values["elevation"],
+                # Elevation can be None, if so then set to 0
+                elevation=values["elevation"]
+                if values["elevation"] is not None
+                else 0,
             )
 
         return values
@@ -107,6 +113,3 @@ class SiteCreate(SiteBase):
 
 class SiteUpdate(SiteBase):
     pass
-
-
-SiteRead.update_forward_refs()

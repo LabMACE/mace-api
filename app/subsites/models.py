@@ -14,23 +14,20 @@ if TYPE_CHECKING:
 
 class TemperatureMeasurementBase(SQLModel):
     measurement_celsius: float = Field(
-        title="The measurement", default=None, index=True
+        title="The measurement",
+        default=None,
     )
     thermometer_characteristic: str = Field(
         title="The thermometer characteristic, such as black or white",
         default=None,
-        index=True,
     )
-
     type: str = Field(
         title="The type of measurement, such as air or soil",
         default=None,
-        index=True,
     )
     depth_from_surface_cm: str = Field(
         title="The depth in centimeters from the surface such as 2 to 5 cm",
         default=None,
-        index=True,
     )
 
 
@@ -49,12 +46,8 @@ class SubSiteBase(SQLModel):
         index=True,
     )
 
-    temperatures: list[TemperatureMeasurementBase] | None = Field(
-        default=[], sa_column=Column(JSON)
-    )
-    luminosities: list[LuminosityMeasurementBase] | None = Field(
-        default=[], sa_column=Column(JSON)
-    )
+    temperatures: list[dict] | None = Field(default=[], sa_column=Column(JSON))
+    luminosities: list[dict] | None = Field(default=[], sa_column=Column(JSON))
 
     class Config:
         arbitrary_types_allowed = True
@@ -122,8 +115,10 @@ class SubSiteRead(SubSiteBase):
 class SubSiteCreate(SubSiteBase):
     latitude: float
     longitude: float
-    elevation: float
+    elevation: float | None
     geom: Any | None = None
+    temperatures: list[TemperatureMeasurementBase] | None
+    luminosities: list[LuminosityMeasurementBase] | None
 
     @root_validator(pre=True)
     def convert_lat_lon_to_wkt(cls, values: dict) -> dict:
@@ -133,7 +128,7 @@ class SubSiteCreate(SubSiteBase):
             values["geom"] = "POINT({lat} {lon} {elevation})".format(
                 lat=values["latitude"],
                 lon=values["longitude"],
-                elevation=values["elevation"],
+                elevation=values["elevation"] if values["elevation"] else 0,
             )
 
         return values
