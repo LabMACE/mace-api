@@ -8,6 +8,10 @@
 # from sqlalchemy.ext.asyncio import AsyncSession
 
 
+def test_pass():
+    assert True
+
+
 # @pytest.mark.asyncio
 # async def test_create_area(
 #     async_client: AsyncClient,
