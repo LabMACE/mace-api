@@ -8,11 +8,8 @@ from app.config import config as app_config
 from alembic import context
 from sqlmodel import SQLModel
 from geoalchemy2 import alembic_helpers
-from app.subsites.models import (
-    SubSite,
-    # TemperatureMeasurement,
-    # LuminosityMeasurement,
-)
+from app.subsites.models import SubSite
+from app.licor.models import LICORData
 from app.sites.models import Site
 from app.fieldcampaigns.models import FieldCampaign
 

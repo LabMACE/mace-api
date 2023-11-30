@@ -1,0 +1,604 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 16.0 (Debian 16.0-1.pgdg110+1)
+-- Dumped by pg_dump version 16.0 (Debian 16.0-1.pgdg110+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: tiger; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA tiger;
+
+
+ALTER SCHEMA tiger OWNER TO postgres;
+
+--
+-- Name: tiger_data; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA tiger_data;
+
+
+ALTER SCHEMA tiger_data OWNER TO postgres;
+
+--
+-- Name: topology; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA topology;
+
+
+ALTER SCHEMA topology OWNER TO postgres;
+
+--
+-- Name: SCHEMA topology; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA topology IS 'PostGIS Topology schema';
+
+
+--
+-- Name: fuzzystrmatch; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION fuzzystrmatch; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance between strings';
+
+
+--
+-- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types and functions';
+
+
+--
+-- Name: postgis_tiger_geocoder; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder WITH SCHEMA tiger;
+
+
+--
+-- Name: EXTENSION postgis_tiger_geocoder; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION postgis_tiger_geocoder IS 'PostGIS tiger geocoder and reverse geocoder';
+
+
+--
+-- Name: postgis_topology; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis_topology WITH SCHEMA topology;
+
+
+--
+-- Name: EXTENSION postgis_topology; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION postgis_topology IS 'PostGIS topology spatial types and functions';
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: alembic_version; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.alembic_version (
+    version_num character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.alembic_version OWNER TO postgres;
+
+--
+-- Name: fieldcampaign; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.fieldcampaign (
+    name character varying,
+    description character varying NOT NULL,
+    iterator integer NOT NULL,
+    id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.fieldcampaign OWNER TO postgres;
+
+--
+-- Name: fieldcampaign_iterator_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.fieldcampaign_iterator_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.fieldcampaign_iterator_seq OWNER TO postgres;
+
+--
+-- Name: fieldcampaign_iterator_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.fieldcampaign_iterator_seq OWNED BY public.fieldcampaign.iterator;
+
+
+--
+-- Name: site; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.site (
+    geom public.geometry(PointZ,4326),
+    name character varying,
+    description character varying,
+    field_campaign_id uuid,
+    location character varying,
+    iterator integer NOT NULL,
+    id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.site OWNER TO postgres;
+
+--
+-- Name: site_iterator_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.site_iterator_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.site_iterator_seq OWNER TO postgres;
+
+--
+-- Name: site_iterator_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.site_iterator_seq OWNED BY public.site.iterator;
+
+
+--
+-- Name: subsite; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.subsite (
+    temperatures json,
+    luminosities json,
+    geom public.geometry(PointZ,4326),
+    name character varying,
+    description character varying NOT NULL,
+    site_id uuid NOT NULL,
+    location character varying,
+    recorded_at timestamp without time zone NOT NULL,
+    iterator integer NOT NULL,
+    id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.subsite OWNER TO postgres;
+
+--
+-- Name: subsite_iterator_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.subsite_iterator_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.subsite_iterator_seq OWNER TO postgres;
+
+--
+-- Name: subsite_iterator_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.subsite_iterator_seq OWNED BY public.subsite.iterator;
+
+
+--
+-- Name: fieldcampaign iterator; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fieldcampaign ALTER COLUMN iterator SET DEFAULT nextval('public.fieldcampaign_iterator_seq'::regclass);
+
+
+--
+-- Name: site iterator; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.site ALTER COLUMN iterator SET DEFAULT nextval('public.site_iterator_seq'::regclass);
+
+
+--
+-- Name: subsite iterator; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subsite ALTER COLUMN iterator SET DEFAULT nextval('public.subsite_iterator_seq'::regclass);
+
+
+--
+-- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.alembic_version (version_num) FROM stdin;
+2f8188f988e1
+\.
+
+
+--
+-- Data for Name: fieldcampaign; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.fieldcampaign (name, description, iterator, id, created_at) FROM stdin;
+Field campaign 2023	Campaign during 2023	1	eb36831e-2045-4360-a013-81cb3032a047	2023-11-28 14:35:13.728485
+\.
+
+
+--
+-- Data for Name: site; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.site (geom, name, description, field_campaign_id, location, iterator, id, created_at) FROM stdin;
+01010000A0E6100000D122DBF97E0A47400E2DB29DEFA71F400000000000000000	A	Saas Fee, suggested site co-ordinates: 46° 4'53.43"N 7°54'49.61"E. Located a couple hundred meters west of the Maste 4 point of the alpin-express line with a gravel road (that crosses meltwater streams). Area is likely to have extensive permafrost. Scree from glacier moraine, co-ordinates are located at a slope of a secondary stream formed by meltwater. Some parts of the site might be at >30° and therefore difficult or impossible to sample with the SmartChamber but the extend of permafrost coverage should be enough to find suitable points. Hence, finding five sub-sites should be feasible. Area is a ski slope during winter.	eb36831e-2045-4360-a013-81cb3032a047	\N	1	96d120ee-40a9-4151-a0e8-469a38ac4524	2023-11-28 14:36:43.614006
+01010000A0E6100000273108AC1C0A47403333333333331D400000000000000000	B	Verbier, near the Col des Gentianes, suggested site co-ordinates 46° 4'45.4"N 7°18'.00"E. Located at the west side of the Col des Gentianes, area with scree, close to a gravel road leaving from La Chaux télésiège (or from Col des Gentianes stop at the Montfort line, 4 Vallées). PERMOS borehole at the Gentianes pass, where sampling can also be done instead, as an alternative site. Area should be good enough to find 5 sub-sites with likely extensive permafrost. Area might be exposed to natural avalanches in winter. FINALLY SAMPLED NEARBY THE GENTIANES PASS.	eb36831e-2045-4360-a013-81cb3032a047	\N	2	9ee35848-c626-4489-9527-2552b65fea55	2023-11-28 14:37:30.181929
+01010000A0E6100000402663C6250A47403333333333331D400000000000000000	L	Crans Montana, Pointe de la Plaine Morte, suggested co-ordinates 46°22′16.262″N 7°29′08.863″E. Following the hiking trail, about 200 m west / northwest of the Glacier de la Plaine Morte cable car stop and about 50 meters past the weather radar station. Do not sample in the north / north-eastern face as it is too steep and dangerous, stick to the left of the path. Area is covered in scree. There should be enough space for 5 sub-sites. Approach done by lift. Area is often under snow due to altitude so it is important to check the webcam and lift access beforehand.  	eb36831e-2045-4360-a013-81cb3032a047	\N	3	fbe8b5b9-69bd-41e9-a8be-453c5b810e7e	2023-11-28 14:42:28.69526
+\.
+
+
+--
+-- Data for Name: spatial_ref_sys; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.spatial_ref_sys (srid, auth_name, auth_srid, srtext, proj4text) FROM stdin;
+\.
+
+
+--
+-- Data for Name: subsite; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.subsite (temperatures, luminosities, geom, name, description, site_id, location, recorded_at, iterator, id, created_at) FROM stdin;
+[{"measurement_celsius": 44.2, "thermometer_characteristic": "black", "type": "soil", "depth_from_surface_cm": "2_5_cm"}, {"measurement_celsius": 43.8, "thermometer_characteristic": "white", "type": "soil", "depth_from_surface_cm": "10_15_cm"}]	[{"measurement_lux": 4353.0}, {"measurement_lux": 6542.0}, {"measurement_lux": 23454.0}]	01010000A0E6100000CE27E1F8902F4740B39366987FF11D400000000000000000	A	Measurements taken from inside OTC. Top layer soil collected. Easy to dig silt. OTC was just installed. iButton #2 installed inside OTC aprox. 5 cm deep	fbe8b5b9-69bd-41e9-a8be-453c5b810e7e	\N	2023-10-10 12:02:00	1	f95d4e18-3b49-4031-b9d5-0b1c1de42dff	2023-11-28 14:43:42.364033
+[{"measurement_celsius": 20.2, "thermometer_characteristic": "black", "type": "air", "depth_from_surface_cm": "na"}, {"measurement_celsius": 21.9, "thermometer_characteristic": "white", "type": "air", "depth_from_surface_cm": "na"}, {"measurement_celsius": 12.5, "thermometer_characteristic": "black", "type": "soil", "depth_from_surface_cm": "2_5_cm"}, {"measurement_celsius": 13.5, "thermometer_characteristic": "white", "type": "soil", "depth_from_surface_cm": "2_5_cm"}]	[{"measurement_lux": 1334.0}, {"measurement_lux": 1685.0}, {"measurement_lux": 1266.0}]	01010000A0E610000087DD770C8F2F4740315D88D51FF11D400000000000000000	C	OTC was just installed. Measurements and samples taken from inside OTC. Very compacted silt. iButton #4 installed inside OTC aprox. 5 cm deep	fbe8b5b9-69bd-41e9-a8be-453c5b810e7e	\N	2023-10-10 12:26:00	2	6485b5c0-b26e-436c-b4c0-100c5b0a019b	2023-11-29 09:34:41.430257
+[{"measurement_celsius": 11.3, "thermometer_characteristic": "black", "type": "air", "depth_from_surface_cm": "na"}, {"measurement_celsius": 12.3, "thermometer_characteristic": "white", "type": "air", "depth_from_surface_cm": "na"}, {"measurement_celsius": 12.7, "thermometer_characteristic": "black", "type": "soil", "depth_from_surface_cm": "2_5_cm"}, {"measurement_celsius": 11.9, "thermometer_characteristic": "white", "type": "soil", "depth_from_surface_cm": "2_5_cm"}]	[{"measurement_lux": 1540.0}, {"measurement_lux": 1665.0}, {"measurement_lux": 1370.0}]	01010000A0E61000004E7B4ACE892F4740C503CAA65CF11D400000000000000000	D	iButton #5 installed next to collar aprox. 5 cm deep.	fbe8b5b9-69bd-41e9-a8be-453c5b810e7e	\N	2023-10-10 12:16:00	3	e57b7d14-6351-4888-9089-5b5ae3c09458	2023-11-29 09:37:56.379296
+\.
+
+
+--
+-- Data for Name: geocode_settings; Type: TABLE DATA; Schema: tiger; Owner: postgres
+--
+
+COPY tiger.geocode_settings (name, setting, unit, category, short_desc) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pagc_gaz; Type: TABLE DATA; Schema: tiger; Owner: postgres
+--
+
+COPY tiger.pagc_gaz (id, seq, word, stdword, token, is_custom) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pagc_lex; Type: TABLE DATA; Schema: tiger; Owner: postgres
+--
+
+COPY tiger.pagc_lex (id, seq, word, stdword, token, is_custom) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pagc_rules; Type: TABLE DATA; Schema: tiger; Owner: postgres
+--
+
+COPY tiger.pagc_rules (id, rule, is_custom) FROM stdin;
+\.
+
+
+--
+-- Data for Name: topology; Type: TABLE DATA; Schema: topology; Owner: postgres
+--
+
+COPY topology.topology (id, name, srid, "precision", hasz) FROM stdin;
+\.
+
+
+--
+-- Data for Name: layer; Type: TABLE DATA; Schema: topology; Owner: postgres
+--
+
+COPY topology.layer (topology_id, layer_id, schema_name, table_name, feature_column, feature_type, level, child_id) FROM stdin;
+\.
+
+
+--
+-- Name: fieldcampaign_iterator_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.fieldcampaign_iterator_seq', 1, true);
+
+
+--
+-- Name: site_iterator_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.site_iterator_seq', 14, true);
+
+
+--
+-- Name: subsite_iterator_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.subsite_iterator_seq', 3, true);
+
+
+--
+-- Name: topology_id_seq; Type: SEQUENCE SET; Schema: topology; Owner: postgres
+--
+
+SELECT pg_catalog.setval('topology.topology_id_seq', 1, false);
+
+
+--
+-- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.alembic_version
+    ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
+
+
+--
+-- Name: fieldcampaign fieldcampaign_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fieldcampaign
+    ADD CONSTRAINT fieldcampaign_id_key UNIQUE (id);
+
+
+--
+-- Name: fieldcampaign fieldcampaign_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fieldcampaign
+    ADD CONSTRAINT fieldcampaign_pkey PRIMARY KEY (iterator);
+
+
+--
+-- Name: site site_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.site
+    ADD CONSTRAINT site_id_key UNIQUE (id);
+
+
+--
+-- Name: site site_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.site
+    ADD CONSTRAINT site_pkey PRIMARY KEY (iterator);
+
+
+--
+-- Name: subsite subsite_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subsite
+    ADD CONSTRAINT subsite_id_key UNIQUE (id);
+
+
+--
+-- Name: subsite subsite_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subsite
+    ADD CONSTRAINT subsite_pkey PRIMARY KEY (iterator);
+
+
+--
+-- Name: idx_site_geom; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_site_geom ON public.site USING gist (geom);
+
+
+--
+-- Name: idx_subsite_geom; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_subsite_geom ON public.subsite USING gist (geom);
+
+
+--
+-- Name: ix_fieldcampaign_created_at; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_fieldcampaign_created_at ON public.fieldcampaign USING btree (created_at);
+
+
+--
+-- Name: ix_fieldcampaign_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_fieldcampaign_id ON public.fieldcampaign USING btree (id);
+
+
+--
+-- Name: ix_fieldcampaign_iterator; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_fieldcampaign_iterator ON public.fieldcampaign USING btree (iterator);
+
+
+--
+-- Name: ix_fieldcampaign_name; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_fieldcampaign_name ON public.fieldcampaign USING btree (name);
+
+
+--
+-- Name: ix_site_created_at; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_site_created_at ON public.site USING btree (created_at);
+
+
+--
+-- Name: ix_site_description; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_site_description ON public.site USING btree (description);
+
+
+--
+-- Name: ix_site_field_campaign_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_site_field_campaign_id ON public.site USING btree (field_campaign_id);
+
+
+--
+-- Name: ix_site_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_site_id ON public.site USING btree (id);
+
+
+--
+-- Name: ix_site_iterator; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_site_iterator ON public.site USING btree (iterator);
+
+
+--
+-- Name: ix_site_location; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_site_location ON public.site USING btree (location);
+
+
+--
+-- Name: ix_site_name; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_site_name ON public.site USING btree (name);
+
+
+--
+-- Name: ix_subsite_created_at; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_subsite_created_at ON public.subsite USING btree (created_at);
+
+
+--
+-- Name: ix_subsite_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_subsite_id ON public.subsite USING btree (id);
+
+
+--
+-- Name: ix_subsite_iterator; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_subsite_iterator ON public.subsite USING btree (iterator);
+
+
+--
+-- Name: ix_subsite_location; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_subsite_location ON public.subsite USING btree (location);
+
+
+--
+-- Name: ix_subsite_name; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_subsite_name ON public.subsite USING btree (name);
+
+
+--
+-- Name: ix_subsite_recorded_at; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_subsite_recorded_at ON public.subsite USING btree (recorded_at);
+
+
+--
+-- Name: ix_subsite_site_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX ix_subsite_site_id ON public.subsite USING btree (site_id);
+
+
+--
+-- Name: site site_field_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.site
+    ADD CONSTRAINT site_field_campaign_id_fkey FOREIGN KEY (field_campaign_id) REFERENCES public.fieldcampaign(id);
+
+
+--
+-- Name: subsite subsite_site_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subsite
+    ADD CONSTRAINT subsite_site_id_fkey FOREIGN KEY (site_id) REFERENCES public.site(id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
