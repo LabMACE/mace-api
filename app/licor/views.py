@@ -47,6 +47,7 @@ async def get_licor(
         description=licor.description,
         created_at=licor.created_at,
         recorded_at=licor.recorded_at,
+        site_id=licor.site_id,
         measurements=datasets,
     )
     return obj
@@ -111,7 +112,7 @@ async def get_licors(
                 count_query = count_query.where(
                     getattr(LICORData, field).in_(value)
                 )
-            elif field == "id":
+            elif field == "id" or field == "site_id":
                 count_query = count_query.where(
                     getattr(LICORData, field) == value
                 )
@@ -138,7 +139,7 @@ async def get_licors(
         for field, value in filter.items():
             if isinstance(value, list):
                 query = query.where(getattr(LICORData, field).in_(value))
-            elif field == "id":
+            elif field == "id" or field == "site_id":
                 query = query.where(getattr(LICORData, field) == value)
             else:
                 query = query.where(

@@ -11,6 +11,7 @@ import datetime
 if TYPE_CHECKING:
     from app.subsites.models import SubSite
     from app.fieldcampaigns.models import FieldCampaign
+    from app.licor.models import LICORData
 
 
 class SiteBase(SQLModel):
@@ -48,6 +49,10 @@ class Site(SiteBase, table=True):
     )
 
     subsites: List["SubSite"] = Relationship(
+        back_populates="site", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+
+    licordata: List["LICORData"] = Relationship(
         back_populates="site", sa_relationship_kwargs={"lazy": "selectin"}
     )
 

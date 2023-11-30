@@ -1,8 +1,12 @@
-from sqlmodel import SQLModel, Field, UniqueConstraint
+from sqlmodel import SQLModel, Field, UniqueConstraint, Relationship
 from uuid import uuid4, UUID
 from typing import Any
 import datetime
 from sqlalchemy import JSON, Column
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.sites.models import Site
 
 
 class LICORDataBase(SQLModel):
@@ -12,6 +16,12 @@ class LICORDataBase(SQLModel):
         title="The datetime in UTC that the record taken by the LICOR",
         nullable=False,
         index=True,
+    )
+    site_id: UUID | None = Field(
+        default=None,
+        foreign_key="site.id",
+        index=True,
+        nullable=True,
     )
 
 
@@ -35,6 +45,9 @@ class LICORData(LICORDataBase, table=True):
         index=True,
     )
     data: dict = Field(default={}, sa_column=Column(JSON))
+    site: "Site" = Relationship(
+        back_populates="licordata", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 class LICORDataRead(LICORDataBase):
