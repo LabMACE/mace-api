@@ -119,6 +119,10 @@ async def update_site(
 
     # Update the fields from the request
     for field, value in site_data.items():
+        if field == "latitude" or field == "longitude" or field == "elevation":
+            # These fields should already be converted to geom in the
+            # model, so skip
+            continue
         print(f"Updating: {field}, {value}")
         setattr(site_db, field, value)
 

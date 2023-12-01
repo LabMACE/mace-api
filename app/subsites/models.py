@@ -139,4 +139,26 @@ class SubSiteCreate(SubSiteBase):
 
 
 class SubSiteUpdate(SubSiteBase):
-    pass
+    latitude: float | None
+    longitude: float | None
+    elevation: float | None
+    geom: Any | None
+
+    @root_validator(pre=True)
+    def convert_lat_lon_to_wkt(cls, values: dict) -> dict:
+        """Form the geometry from the latitude and longitude and elevation"""
+
+        # Only save geometry if we have both latitude and longitude
+        if ("latitude" in values and "longitude" in values) and (
+            values["latitude"] is not None and values["longitude"] is not None
+        ):
+            values["geom"] = "POINT({lat} {lon} {elevation})".format(
+                lat=values["latitude"],
+                lon=values["longitude"],
+                # Elevation can be None, if so then set to 0
+                elevation=values["elevation"]
+                if values["elevation"] is not None
+                else 0,
+            )
+
+        return values

@@ -130,7 +130,11 @@ async def update_subsite(
 
     # Update the fields from the request
     for field, value in subsite_data.items():
-        print(f"Updating: {field}, {value}")
+        if field == "latitude" or field == "longitude" or field == "elevation":
+            # These fields should already be converted to geom in the
+            # model, so skip
+            continue
+
         setattr(subsite_db, field, value)
 
     session.add(subsite_db)
